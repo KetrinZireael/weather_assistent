@@ -3,6 +3,10 @@
 use Illuminate\Support\Facades\Route;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Http;
+use App\Http\Controllers\FeedbackController;
+
+Route::get('/feedback', [FeedbackController::class, 'index']);
+Route::post('/feedback', [FeedbackController::class, 'store']);
 
 Route::get('/weather', function (Request $request) {
     $city = $request->query('city', 'Poltava'); // за замовчуванням — Полтава

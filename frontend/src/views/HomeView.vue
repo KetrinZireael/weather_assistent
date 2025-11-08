@@ -20,6 +20,13 @@
       </button>
     </form>
 
+    <RouterLink
+      to="/details"
+      class="mt-4 text-sky-700 hover:underline font-medium"
+    >
+      Детальні рекомендації →
+    </RouterLink>
+
     <!-- Стани -->
     <div v-if="loading" class="text-sky-700">Завантаження...</div>
     <div v-else-if="error" class="text-red-600">{{ error }}</div>
@@ -37,11 +44,15 @@
         {{ weather.advice }}
       </p>
     </div>
+
+    <OutfitTips v-if="weather" :temperature="weather.temperature" />
   </section>
 </template>
 
 <script setup>
 import { ref } from 'vue'
+import OutfitTips from '../components/OutfitTips.vue'
+import { RouterLink } from 'vue-router'
 
 const city = ref('Poltava')
 const weather = ref(null)
