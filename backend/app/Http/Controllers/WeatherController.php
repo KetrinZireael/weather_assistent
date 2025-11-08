@@ -9,13 +9,8 @@ class WeatherController extends Controller
 {
     public function index(Request $request)
     {
-        // Отримуємо місто з параметра запиту (якщо не передане — Poltava)
-        $city = $request->query('city', 'Poltava');
-
-        // Ключ для OpenWeather API
+        $city = $request->query('city', 'Kyiv');
         $apiKey = env('WEATHER_API_KEY');
-
-        // Виконуємо запит до OpenWeather
         $response = Http::get('https://api.openweathermap.org/data/2.5/weather', [
             'q' => $city,
             'appid' => $apiKey,
@@ -23,13 +18,28 @@ class WeatherController extends Controller
             'lang' => 'ua',
         ]);
 
-        // Якщо помилка — повертаємо повідомлення
         if ($response->failed()) {
             return response()->json([
-                'error' => 'Не вдалося отримати дані про погоду. Перевір API ключ або назву міста.'
+                'error' => 'Не вдалося отримати погоду'
             ], 400);
         }
 
-        return $response->json();
+        $data = $response->json();
+
+        // Побудуємо простішу відповідь
+        return response()->json([
+            'city' => $data['name'],
+            'temperature' => $data['main']['temp'],
+            'condition' => $data['weather'][0]['description'],
+            'advice' => $this->getAdvice($data['main']['temp']),
+        ]);
+    }
+
+    private function getAdvice(float $temp): string
+    {
+        if ($temp >= 25) return 'Спекотно — вдягай щось легке та відкриті ноги ☀️';
+        if ($temp >= 15) return 'Приємна погода — футболка з джинсами підійдуть 👕';
+        if ($temp >= 5) return 'Прохолодно — вдягни светр чи легку куртку 🧥';
+        return 'Холодно — тепла куртка, шарф і рукавиці потрібні ❄️';
     }
 }
