@@ -2,8 +2,15 @@
 
 use Illuminate\Support\Facades\Route;
 
-// Усі API запити обробляються через routes/api.php,
-// тому тут ми ловимо все інше і повертаємо Vue SPA
+// Всі API йдуть через routes/api.php
+// А решта запитів — повертаємо Vue SPA
 Route::get('/{any}', function () {
-    return file_get_contents(public_path('build/index.html'));
+    $index = public_path('build/index.html');
+
+    if (file_exists($index)) {
+        return file_get_contents($index);
+    }
+
+    // fallback якщо немає Vue-збірки
+    return response('Frontend build not found', 404);
 })->where('any', '.*');

@@ -3,37 +3,39 @@ import { defineConfig } from 'vite'
 import vue from '@vitejs/plugin-vue'
 import vueDevTools from 'vite-plugin-vue-devtools'
 import tailwindcss from '@tailwindcss/vite'
+import path from 'path'
 
 // https://vitejs.dev/config/
 export default defineConfig({
   plugins: [
     vue(),
     vueDevTools(),
-    tailwindcss(), // ✅ Tailwind працює з Vite
+    tailwindcss(),
   ],
+
   resolve: {
     alias: {
-      '@': fileURLToPath(new URL('./src', import.meta.url)), // alias для імпортів
+      '@': fileURLToPath(new URL('./src', import.meta.url)),
     },
   },
+
   server: {
-    port: 5174, // будь-який вільний порт
+    port: 5174,
     proxy: {
-      // ✅ Проксі для запитів до Laravel API під час розробки
       '/api': {
-        target: 'http://localhost:8000', // Laravel backend
+        target: 'http://localhost:8000',
         changeOrigin: true,
         secure: false,
       },
     },
   },
+
   build: {
-    // ✅ Шлях до публічної папки Laravel (з фронтенду йдемо на рівень вище → public)
-    outDir: '../public/build',
+    outDir: path.resolve(__dirname, '../public/build'), // ✅ абсолютний шлях
     emptyOutDir: true,
-    manifest: true, // ❗ Рекомендовано для Laravel — генерує manifest.json
+    manifest: true,
     rollupOptions: {
-      input: '/src/main.js', // або main.ts, залежно від твого проєкту
+      input: path.resolve(__dirname, 'index.html'), // ⚡️ обов’язково
     },
   },
 })
