@@ -15,6 +15,13 @@
         </div>
       </div>
 
+      <button
+        @click="logout"
+        class="mt-4 bg-red-400 hover:bg-red-500 text-white font-medium py-2 px-4 rounded-lg transition"
+      >
+        🚪 Вийти
+      </button>
+
       <!-- 🔹 Форма -->
       <div class="bg-sky-50 border border-sky-100 rounded-2xl p-6 mb-10 shadow-inner">
         <h2 class="text-2xl font-semibold text-sky-800 mb-4 text-center">Залиш свій відгук 💬</h2>
@@ -95,12 +102,15 @@
 <script setup>
 import { ref, onMounted } from 'vue'
 import { RouterLink } from 'vue-router'
+import { useRouter } from 'vue-router'
+
 
 const city = ref('')
 const temperature = ref('')
 const comment = ref('')
 const successMessage = ref('')
 const feedback = ref([])
+const router = useRouter()
 
 async function loadFeedback() {
   const res = await fetch('http://127.0.0.1:8000/api/feedback')
@@ -126,6 +136,21 @@ async function submitFeedback() {
     loadFeedback()
     setTimeout(() => (successMessage.value = ''), 3000)
   }
+}
+
+async function logout() {
+  const token = localStorage.getItem('token')
+  if (!token) return router.push('/login')
+
+  await fetch('http://127.0.0.1:8000/api/logout', {
+    method: 'POST',
+    headers: {
+      Authorization: `Bearer ${token}`,
+    },
+  })
+
+  localStorage.removeItem('token')
+  router.push('/login')
 }
 
 onMounted(loadFeedback)
