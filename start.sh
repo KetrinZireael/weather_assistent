@@ -27,4 +27,5 @@ php artisan route:cache || true
 
 # 3️⃣ Запуск Laravel сервера на правильному порту
 echo "🔥 Starting Laravel on port ${PORT:-8080}..."
-php artisan serve --host=0.0.0.0 --port=${PORT:-8080}
+cd backend
+php artisan serve --host=0.0.0.0 --port=${PORT:-8080} --public=../public
