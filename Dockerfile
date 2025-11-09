@@ -29,7 +29,7 @@ WORKDIR /var/www/html
 COPY backend/ .
 
 # Копіюємо зібраний фронтенд у Laravel public/build
-COPY --from=frontend /app/frontend/dist ./public/build
+COPY --from=frontend /app/public/build ./public/build
 
 # Встановлюємо PHP-залежності
 RUN composer install --no-dev --optimize-autoloader
