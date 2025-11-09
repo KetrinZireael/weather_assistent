@@ -21,8 +21,8 @@ WORKDIR /var/www/html
 # Копіюємо Laravel-код
 COPY backend/ .
 
-# Копіюємо зібраний фронтенд у Laravel public
-COPY --from=frontend /app/frontend/dist ./public
+# Копіюємо зібраний фронтенд у Laravel public/build
+COPY --from=frontend /app/backend/public/build ./public/build
 
 # Встановлюємо PHP залежності
 RUN composer install --no-dev --optimize-autoloader
