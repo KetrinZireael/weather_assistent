@@ -1,4 +1,4 @@
-# 1️⃣ Білд фронтенду (Vite)
+# 1️⃣ Фронтенд
 FROM node:20 AS frontend
 WORKDIR /app/frontend
 COPY frontend/package*.json ./
@@ -8,28 +8,21 @@ RUN npm run build
 
 # 2️⃣ Laravel backend
 FROM php:8.2-fpm
-
 RUN apt-get update && apt-get install -y \
     git curl zip unzip libpng-dev libonig-dev libxml2-dev sqlite3 libsqlite3-dev && \
     docker-php-ext-install pdo_mysql mbstring exif pcntl bcmath gd
 
-# Встановлюємо Composer
 COPY --from=composer:latest /usr/bin/composer /usr/bin/composer
-
 WORKDIR /var/www/html
 
-# Копіюємо Laravel-код
+# Копіюємо Laravel код
 COPY backend/ .
 
-# Копіюємо зібраний фронтенд у Laravel public/build
-COPY --from=frontend /app/backend/public/build ./public/build
+# 👇 Саме цей рядок правильний
+COPY --from=frontend /app/public/build ./public/build
 
-# Встановлюємо PHP залежності
 RUN composer install --no-dev --optimize-autoloader
-
-# Генеруємо ключ
 RUN php artisan key:generate || true
-
 RUN chmod -R 777 storage bootstrap/cache
 
 EXPOSE 10000
