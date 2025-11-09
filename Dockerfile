@@ -1,5 +1,5 @@
 # 1. Будуємо frontend (Vite)
-FROM node:18 AS frontend
+FROM node:20 AS frontend
 WORKDIR /app/frontend
 COPY frontend/ .
 RUN npm install && npm run build
@@ -14,10 +14,15 @@ COPY backend/ .
 # Копіюємо зібраний frontend у публічну папку Laravel
 COPY --from=frontend /app/frontend/dist /var/www/html/public
 
-# Встановлюємо необхідні розширення PHP
-RUN docker-php-ext-install pdo pdo_mysql
+# Встановлюємо Composer і розширення PHP
+RUN apt-get update && apt-get install -y git unzip && \
+    docker-php-ext-install pdo pdo_mysql
 
-# Права на кеш і storage
+# Встановлюємо Composer залежності
+RUN curl -sS https://getcomposer.org/installer | php -- --install-dir=/usr/local/bin --filename=composer && \
+    composer install --no-dev --optimize-autoloader
+
+# Права доступу
 RUN chmod -R 755 /var/www/html/storage /var/www/html/bootstrap/cache
 
 # Відкриваємо порт
