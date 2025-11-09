@@ -1,5 +1,5 @@
 <template>
-  <section class="min-h-screen bg-gradient-to-b from-sky-50 to-sky-100 py-12 px-6">
+  <section class="min-h-screen bg-gradient-to-b from-sky-50 to-sky-100 pb-12 pt-28 px-6">
     <div class="max-w-3xl mx-auto bg-white shadow-lg rounded-2xl p-8">
       <h1 class="text-3xl font-bold text-sky-800 mb-6 text-center">Детальні рекомендації 👕🧥</h1>
 

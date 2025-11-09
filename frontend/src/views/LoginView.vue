@@ -34,7 +34,7 @@ const error = ref('')
 async function login() {
   error.value = ''
   try {
-    const res = await fetch('http://127.0.0.1:8000/api/login', {
+    const res = await fetch('http://127.0.0.1:8003/api/login', {
       method: 'POST',
       headers: { 'Content-Type': 'application/json' },
       body: JSON.stringify({ email: email.value, password: password.value }),
@@ -43,6 +43,7 @@ async function login() {
     if (!res.ok) throw new Error(data.message || 'Помилка входу')
 
     localStorage.setItem('token', data.token)
+    localStorage.setItem('user', JSON.stringify(data.user))
     router.push('/profile')
   } catch (err) {
     error.value = err.message

@@ -10,7 +10,9 @@
           class="w-24 h-24 rounded-full border-4 border-sky-300 shadow-md"
         />
         <div class="text-center sm:text-left">
-          <h1 class="text-3xl font-bold text-sky-900 mb-1">Привіт, Кетрін 👋</h1>
+          <h1 class="text-3xl font-bold text-sky-900 mb-1">
+            Привіт, {{ userName }} 👋
+          </h1>
           <p class="text-sky-700">Твій простір для відгуків і рекомендацій по погоді ☁️</p>
         </div>
       </div>
@@ -111,6 +113,36 @@ const comment = ref('')
 const successMessage = ref('')
 const feedback = ref([])
 const router = useRouter()
+const userName = ref('')
+
+// Завантажуємо ім’я користувача при відкритті сторінки
+onMounted(() => {
+  const storedUser = localStorage.getItem('user')
+  if (storedUser) {
+    try {
+      const user = JSON.parse(storedUser)
+      userName.value = user.name || 'Користувач'
+    } catch (e) {
+      userName.value = 'Користувач'
+    }
+  }
+})
+
+// Якщо ім’я не збережене — отримуємо з бекенду
+if (!userName.value) {
+  const token = localStorage.getItem('token')
+  if (token) {
+    fetch('http://127.0.0.1:8003/api/user', {
+      headers: {
+        Authorization: `Bearer ${token}`,
+      },
+    })
+      .then((res) => res.json())
+      .then((data) => {
+        userName.value = data.name || 'Користувач'
+      })
+  }
+}
 
 async function loadFeedback() {
   const res = await fetch('http://127.0.0.1:8000/api/feedback')

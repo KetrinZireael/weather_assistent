@@ -2,10 +2,10 @@
 
 use Illuminate\Support\Facades\Route;
 use Illuminate\Http\Request;
-use Illuminate\Support\Facades\Http;
 use Illuminate\Support\Facades\Auth;
 use App\Models\User;
 use App\Http\Controllers\FeedbackController;
+use App\Http\Controllers\WeatherController;
 
 /*
 |--------------------------------------------------------------------------
@@ -20,52 +20,24 @@ Route::post('/feedback', [FeedbackController::class, 'store']);
 |--------------------------------------------------------------------------
 | Weather API
 |--------------------------------------------------------------------------
+|
+| Повністю логіка погоди тепер винесена у WeatherController@index.
+| Там обчислюється поточна температура, прогноз, рекомендації тощо.
+|
 */
 
-Route::get('/weather', function (Request $request) {
-    $city = $request->query('city', 'Poltava'); // за замовчуванням — Полтава
-    $apiKey = env('WEATHER_API_KEY');
-
-    $response = Http::get('https://api.openweathermap.org/data/2.5/weather', [
-        'q' => $city,
-        'appid' => $apiKey,
-        'units' => 'metric',
-        'lang' => 'ua',
-    ]);
-
-    if ($response->failed()) {
-        return response()->json(['error' => 'Не вдалося отримати погоду'], 400);
-    }
-
-    $data = $response->json();
-    $temp = $data['main']['temp'] ?? null;
-
-    // порада по одягу
-    if ($temp >= 25) {
-        $advice = 'Спекотно ☀️ — вдягай щось легке, шорти або сукню';
-    } elseif ($temp >= 15) {
-        $advice = 'Тепло 🌤️ — футболка або сорочка, легка куртка не завадить';
-    } elseif ($temp >= 5) {
-        $advice = 'Прохолодно 🌥️ — светр, джинси або куртка';
-    } else {
-        $advice = 'Холодно ❄️ — тепла куртка, шапка, шарф';
-    }
-
-    return response()->json([
-        'city' => $data['name'] ?? $city,
-        'temperature' => $temp,
-        'condition' => $data['weather'][0]['description'] ?? 'невідомо',
-        'advice' => $advice,
-    ]);
-});
+Route::get('/weather', [WeatherController::class, 'index']);
 
 /*
 |--------------------------------------------------------------------------
 | Auth API (Laravel Sanctum)
 |--------------------------------------------------------------------------
+|
+| Реєстрація, вхід, вихід і отримання даних користувача.
+| Використовуються стандартні методи Sanctum для токенів.
+|
 */
 
-// 🟩 Реєстрація
 Route::post('/register', function (Request $request) {
     $validated = $request->validate([
         'name' => 'required|string|max:255',
@@ -88,7 +60,6 @@ Route::post('/register', function (Request $request) {
     ]);
 });
 
-// 🟦 Вхід
 Route::post('/login', function (Request $request) {
     $credentials = $request->validate([
         'email' => 'required|email',
@@ -109,13 +80,11 @@ Route::post('/login', function (Request $request) {
     ]);
 });
 
-// 🟥 Вихід
 Route::middleware('auth:sanctum')->post('/logout', function (Request $request) {
     $request->user()->tokens()->delete();
     return response()->json(['message' => 'Вихід виконано']);
 });
 
-// 🟨 Поточний користувач
 Route::middleware('auth:sanctum')->get('/user', function (Request $request) {
     return $request->user();
 });
