@@ -1,29 +1,27 @@
-# Використовуємо офіційний PHP образ
-FROM php:8.2-fpm
+# 1. Будуємо frontend (Vite)
+FROM node:18 AS frontend
+WORKDIR /app/frontend
+COPY frontend/ .
+RUN npm install && npm run build
 
-# Встановлюємо системні пакети
-RUN apt-get update && apt-get install -y \
-    git curl zip unzip libpng-dev libonig-dev libxml2-dev sqlite3 libsqlite3-dev && \
-    docker-php-ext-install pdo_mysql mbstring exif pcntl bcmath gd
-
-# Встановлюємо Composer
-COPY --from=composer:latest /usr/bin/composer /usr/bin/composer
-
-# Копіюємо код проекту
+# 2. Laravel backend
+FROM php:8.2-apache
 WORKDIR /var/www/html
-COPY . .
 
-# Встановлюємо залежності Laravel
-RUN composer install --no-dev --optimize-autoloader
+# Копіюємо backend
+COPY backend/ .
 
-# Генеруємо ключ Laravel
-RUN php artisan key:generate
+# Копіюємо зібраний frontend у публічну папку Laravel
+COPY --from=frontend /app/frontend/dist /var/www/html/public
 
-# Виставляємо права доступу
-RUN chmod -R 777 storage bootstrap/cache
+# Встановлюємо необхідні розширення PHP
+RUN docker-php-ext-install pdo pdo_mysql
 
-# Відкриваємо порт для Render
-EXPOSE 10000
+# Права на кеш і storage
+RUN chmod -R 755 /var/www/html/storage /var/www/html/bootstrap/cache
+
+# Відкриваємо порт
+EXPOSE 80
 
 # Запускаємо сервер
-CMD php artisan serve --host=0.0.0.0 --port=10000
+CMD ["php", "artisan", "serve", "--host=0.0.0.0", "--port=80"]
