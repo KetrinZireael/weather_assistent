@@ -9,7 +9,7 @@ export default defineConfig({
   plugins: [
     vue(),
     vueDevTools(),
-    tailwindcss(), // ✅ підключає Tailwind до Vite
+    tailwindcss(),
   ],
   resolve: {
     alias: {
@@ -17,10 +17,11 @@ export default defineConfig({
     },
   },
   server: {
-    port: 5174, // зручно, щоб не конфліктував із Laravel
+    port: 5173, // звичайний порт Vite
   },
   build: {
-    outDir: '../public/build', // якщо збираєш у Laravel
+    outDir: 'dist', // ⚡️ основна зміна — збірка у frontend/dist
     emptyOutDir: true,
   },
+  base: './', // ✅ щоб коректно працювали всі відносні шляхи на Railway
 })
